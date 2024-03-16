@@ -1,13 +1,12 @@
 import { Link, Navigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchRegister } from '../redux/features/authSlice';
 import { useForm } from 'react-hook-form';
 
 import toast from 'react-hot-toast';
 
 const RegisterPage = () => {
-	const isAuth = useSelector((state) => Boolean(state.auth.data));
+	// const isAuth = useSelector((state) => Boolean(state.auth.data));
 
 	const dispatch = useDispatch();
 	const {
@@ -37,9 +36,9 @@ const RegisterPage = () => {
 	const onChange = (values) => {
 		console.log(values);
 	};
-	if (isAuth) {
-		return <Navigate to="/routes" />;
-	}
+	// if (isAuth) {
+	// 	return <Navigate to="/routes" />;
+	// }
 	return (
 		<div>
 			<div className="loginWrapper">
@@ -50,14 +49,7 @@ const RegisterPage = () => {
 							Ім&apos;я користувача:
 						</label>
 						<span className="text-md text-red-600">{errors.username?.message}</span>
-						<input
-							onChange={onChange}
-							name="username"
-							type="text"
-							placeholder="ім'я користувача"
-							className="loginInput"
-							{...register('username', { required: 'Введіть ім&apos;я користувача' })}
-						/>
+						<input onChange={onChange} name="username" type="text" placeholder="ім'я користувача" className="loginInput" {...register('username', { required: 'Введіть ім&apos;я користувача' })} />
 					</div>
 					<div className="inputWrapper">
 						<label className="text-sm text-gray-400" htmlFor="">

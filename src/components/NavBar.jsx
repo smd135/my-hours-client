@@ -4,17 +4,21 @@ import { NavLink } from 'react-router-dom';
 import { HiOutlineHome, HiCollection, HiDocumentAdd } from 'react-icons/hi';
 import { logout } from '../redux/features/authSlice';
 import { setMonth, setYear, setTotalHours } from '../redux/features/filterSlice';
+import { useGetmeQuery } from '../redux/features/usersApiSlice';
 import moment from 'moment';
 
 const NavBar = () => {
 	const dispatch = useDispatch();
-	const isAuth = useSelector((state) => Boolean(state.auth.data));
-	const data = useSelector((state) => state.auth.data);
+	const { userInfo } = useSelector((state) => state.auth);
+	// const data = useSelector((state) => state.auth.user);
 	const { items } = useSelector((state) => state.routes);
 	const { month, year, totalHours } = useSelector((state) => state.filter);
+
+	const { data } = useGetmeQuery();
+
 	//***********************************************************/
 	const hours = Math.floor(totalHours / 60);
-	console.log(totalHours);
+
 	const minutes = totalHours % 60;
 	const currentDate = moment.now();
 	const currentMonth = moment(currentDate).month() + 1;
@@ -28,13 +32,12 @@ const NavBar = () => {
 
 	const onLogout = () => {
 		dispatch(logout());
-		window.localStorage.removeItem('token');
 	};
 
-	const splittedName = isAuth ? data.username : null;
+	const splittedName = userInfo ? userInfo.name : null;
 	return (
 		<>
-			{isAuth && (
+			{userInfo && (
 				<div className="profile mt-3 w-full">
 					<div className="flex gap-4">
 						<select
@@ -74,7 +77,7 @@ const NavBar = () => {
 					</div>
 					<div className="profileItem">
 						<span className="profileWrapper">
-							{/* <span className="userName">{splittedName}</span> */}
+							{/* <span className="name">{splittedName}</span> */}
 							<span className="userAvatar">
 								{splittedName
 									?.toUpperCase()

@@ -36,6 +36,9 @@ const routesSlice = createSlice({
    name: 'routes',
    initialState,
    reducers: {
+      setRoutes: (state, action) => {
+         state.items = action.payload
+      }
    },
    extraReducers: (builder) => {
       // 'type: fetchRoutes'
@@ -105,5 +108,5 @@ const routesSlice = createSlice({
    }
 })
 
-// export const { } = routesSlice.actions;
+export const { setRoutes } = routesSlice.actions;
 export default routesSlice.reducer

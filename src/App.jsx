@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useNavigate } from 'react-router-dom';
 import Layout from './components/Layout';
 import MainPage from './pages/MainPage';
 import RoutesPage from './pages/RoutesPage';
@@ -10,13 +10,16 @@ import LoginPage from './pages/LoginPage';
 import { useDispatch, useSelector } from 'react-redux';
 import { useEffect } from 'react';
 import { Toaster } from 'react-hot-toast';
-import { fetchAuthMe } from './redux/features/authSlice';
 function App() {
-	const isAuth = useSelector((state) => Boolean(state.auth.data));
+	const { userInfo } = useSelector((state) => state.auth);
+	console.log(userInfo);
 	const dispatch = useDispatch();
+	const navigate = useNavigate();
 	useEffect(() => {
-		dispatch(fetchAuthMe());
-	}, []);
+		if (userInfo) {
+			navigate('/routes');
+		}
+	}, [userInfo]);
 	return (
 		<>
 			<Layout>

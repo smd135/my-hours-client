@@ -1,12 +1,16 @@
-import { Link, Navigate } from 'react-router-dom';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchAuth } from '../redux/features/authSlice';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
+import { setCredentials } from '../redux/features/authSlice';
+import { useLoginMutation } from '../redux/features/usersApiSlice';
+import { useEffect } from 'react';
 
 const LoginPage = () => {
-	const isAuth = useSelector((state) => Boolean(state.auth.data));
 	const dispatch = useDispatch();
+	const navigate = useNavigate();
+	const { userInfo } = useSelector((state) => state.auth);
+	console.log(userInfo);
 	const {
 		register,
 		handleSubmit,
@@ -19,20 +23,23 @@ const LoginPage = () => {
 		},
 		mode: 'onChange',
 	});
+	
 
+	const [login, { isLoading }] = useLoginMutation();
 	const onSubmit = async (values) => {
-		const data = await dispatch(fetchAuth(values));
-		if (!data.payload) {
-			return toast.error('Невдала авторизація!');
+		const { email, password } = values;
+		try {
+			const res = await login({ email, password }).unwrap();
+			dispatch(setCredentials({ ...res }));
+			navigate('/');
+		} catch (error) {
+			console.log(error?.data?.message || error.error);
+			toast.error('Невдала авторизація');
 		}
-		if ('token' in data.payload) {
-			window.localStorage.setItem('token', data.payload.token);
-		}
+
+		console.log(values);
 	};
-	const onChange = (values) => {};
-	if (isAuth) {
-		return <Navigate to="/routes" />;
-	}
+
 	return (
 		<div>
 			<div className="loginWrapper">
@@ -43,14 +50,14 @@ const LoginPage = () => {
 							Електронна пошта:
 						</label>
 						<span className="text-md text-red-600">{errors.email?.message}</span>
-						<input onChange={onChange} name="email" type="email" placeholder="електронна пошта" className="loginInput" {...register('email', { required: 'Введіть email' })} />
+						<input name="email" type="email" placeholder="електронна пошта" className="loginInput" {...register('email', { required: 'Введіть email' })} />
 					</div>
 					<div className="inputWrapper">
 						<label className="text-sm text-gray-400" htmlFor="">
 							Пароль:
 						</label>
 						<span className="text-md text-red-600">{errors.password?.message}</span>
-						<input onChange={onChange} name="password" type="password" placeholder="пароль" className="loginInput" {...register('password', { required: 'Введіть пароль' })} />
+						<input name="password" type="password" placeholder="пароль" className="loginInput" {...register('password', { required: 'Введіть пароль' })} />
 					</div>
 					<div className="flex gap-8 justify-center mt-4">
 						<button className="flex justify-center items-center text-md  rounded-md py-2 px-4 text-white" type="submit">

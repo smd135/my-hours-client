@@ -4,30 +4,37 @@ import BlankItem from '../components/BlankItem';
 import DotsSpinner from '../components/DotsSpinner';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchRoutes } from '../redux/features/routesSlice';
-import { Navigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { setFiltered, setTotalHours } from '../redux/features/filterSlice';
+import { useGetRoutesQuery } from '../redux/features/routesApiSlice';
 
 const RoutesPage = () => {
 	const dispatch = useDispatch();
-	const isAuth = useSelector((state) => Boolean(state.auth.data));
-	const { items, status, isUpdated } = useSelector((state) => state.routes);
+	const { userInfo } = useSelector((state) => state.auth);
+	const navigate = useNavigate();
+	const { status, isUpdated } = useSelector((state) => state.routes);
 	const { month } = useSelector((state) => state.filter);
 	const filteredItems = useSelector((state) => state.filter.items);
 	//*************************************************************
+	const { data: items, isLoading } = useGetRoutesQuery();
 	useEffect(() => {
-		dispatch(fetchRoutes());
-		if (items.length > 0) dispatch(setFiltered(items, month));
+		dispatch(setFiltered(items));
+		// if (items.length > 0) dispatch(setFiltered(items, month));
 		dispatch(setTotalHours());
-	}, [isUpdated]);
+	}, []);
 
 	// @todo Create new filter reducer to set current month
+	useEffect(() => {
+		if (!userInfo) {
+			navigate('/login');
+		}
+	}, [userInfo]);
+	// const { data: items, isLoading } = useGetRoutesQuery();
+	// console.log(isLoading);
 
-	if (!isAuth) {
-		return <Navigate to="/login" />;
-	}
-	if (status === 'loading') {
-		return <DotsSpinner />;
-	}
+	console.log(items);
+	// const isLoading = false;
+
 	return (
 		<div className="mx-auto mt-10 py-3">
 			<div>
@@ -40,11 +47,8 @@ const RoutesPage = () => {
 					<p>Всього</p>
 					<p>Інше</p>
 				</div>
-				{items.length > 0 ? (
-					<div className="routeItem">{filteredItems && filteredItems.map((route) => <RouteItem key={route._id} routes={route} />)}</div>
-				) : (
-					<BlankItem text="У вас немає поїздок..." />
-				)}
+
+				{isLoading ? <DotsSpinner /> : items.length === 0 ? <BlankItem text="У вас немає поїздок..." /> : <div className="routeItem">{filteredItems && filteredItems.map((route) => <RouteItem key={route._id} routes={route} />)}</div>}
 			</div>
 		</div>
 	);
