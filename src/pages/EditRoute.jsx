@@ -1,18 +1,20 @@
 import { useNavigate, useParams } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
 import { useState, useEffect, useCallback } from 'react';
-import { ThreeDots } from 'react-loader-spinner';
+import { useDispatch, useSelector } from 'react-redux';
 import DotsSpinner from '../components/DotsSpinner';
 import toast from 'react-hot-toast';
 import { Space } from 'antd';
-import { editRoute, fetchById } from '../redux/features/routesSlice';
+import { useGetRouteByIdQuery, useEditRouteMutation } from '../redux/features/routesApiSlice';
+import { setUpdate } from '../redux/features/routesSlice';
 
 const EditRoute = () => {
-	const { items, status } = useSelector((state) => state.routes);
-	const dispatch = useDispatch();
-	const navigate = useNavigate();
 	const params = useParams();
-	const [id, setId] = useState('');
+	const id = params.id;
+	const { data: items, status } = useGetRouteByIdQuery(id);
+	const dispatch = useDispatch();
+	const { isUpdated } = useSelector((state) => state.routes);
+	console.log(isUpdated);
+	const navigate = useNavigate();
 	const [route_num, setRoute_num] = useState('');
 	const [start_at, setStart_at] = useState('');
 	const [end_at, setEnd_at] = useState('');
@@ -20,9 +22,7 @@ const EditRoute = () => {
 	const [engine_num, setEngine_num] = useState(0);
 	const [train_num, setTrain_num] = useState(0);
 	const [route_etc, setRoute_etc] = useState('');
-
 	const fetchRoute = () => {
-		setId(items._id);
 		setRoute_num(items.route_num);
 		setStart_at(items.start_at);
 		setEnd_at(items.end_at);
@@ -31,17 +31,17 @@ const EditRoute = () => {
 		setTrain_num(items.train_num);
 		setRoute_etc(items.route_etc);
 	};
-	console.log(items, status);
+	console.log(typeof id);
 	useEffect(() => {
-		dispatch(fetchById(params.id));
-		fetchRoute();
+		if (status === 'fulfilled') fetchRoute();
 	}, []);
-	// const { route_num, start_at, end_at, engine_type, engine_num, train_num, route_etc } = routeData;
-	const submitHandler = (e) => {
+	const [edit] = useEditRouteMutation();
+
+	const submitHandler = async (e) => {
 		e.preventDefault();
 		try {
 			const data = {
-				id,
+				id: id,
 				route_num,
 				start_at,
 				end_at,
@@ -50,8 +50,10 @@ const EditRoute = () => {
 				train_num,
 				route_etc,
 			};
-			dispatch(editRoute(data));
+			edit(data);
 			toast.success('Маршрут оновлено');
+			dispatch(setUpdate('edited'));
+			navigate(`/${id}`);
 		} catch (error) {
 			console.log(error);
 		}
@@ -87,36 +89,12 @@ const EditRoute = () => {
 					</select>
 
 					<label className="text-sm text-white opacity-70">Номер локомотива:</label>
-					<input
-						type="number"
-						placeholder="номер локомотива"
-						style={{ width: '100%' }}
-						name="engine_num"
-						className="addInput w-full"
-						value={engine_num}
-						onChange={(e) => setEngine_num(e.target.value)}
-					/>
+					<input type="number" placeholder="номер локомотива" style={{ width: '100%' }} name="engine_num" className="addInput w-full" value={engine_num} onChange={(e) => setEngine_num(e.target.value)} />
 
 					<label className="text-sm text-white opacity-70">Номер поїзда:</label>
-					<input
-						type="number"
-						placeholder="номер поїзда -"
-						style={{ width: '100%' }}
-						name="train_num"
-						className="addInput w-full"
-						value={train_num}
-						onChange={(e) => setTrain_num(e.target.value)}
-					/>
+					<input type="number" placeholder="номер поїзда -" style={{ width: '100%' }} name="train_num" className="addInput w-full" value={train_num} onChange={(e) => setTrain_num(e.target.value)} />
 					<label className="text-sm text-white opacity-70">інше:</label>
-					<input
-						type="text"
-						placeholder="інше"
-						style={{ width: '100%' }}
-						name="route_etc"
-						className="addInput w-full"
-						value={route_etc}
-						onChange={(e) => setRoute_etc(e.target.value)}
-					/>
+					<input type="text" placeholder="інше" style={{ width: '100%' }} name="route_etc" className="addInput w-full" value={route_etc} onChange={(e) => setRoute_etc(e.target.value)} />
 					<div className="flex justify-between gap-5">
 						<button onClick={onCancelEdit} className="flex justify-center w-full items-center mt-2 text-md bg-red-500	 rounded-md py-2 px-4 text-white" type="button">
 							Скасувати

@@ -20,13 +20,19 @@ export const filterSlice = createSlice({
          state.year = action.payload
       },
       setFiltered: (state, action) => {
-         const currentM = Number(state.month);
+         // const currentM = Number(state.month);
+         const currentM = Number(3)
          const items = action.payload;
-         state.items = filter(items, currentM)
+         if (items) {
+            state.items = filter(action.payload, currentM)
+         }
+         state.status = 'fetched'
+
       },
       setTotalHours: (state) => {
-         const hours = state.items.reduce((total, obj) => total + obj.diff, 0);
-         state.totalHours = hours
+         state.totalHours = state.items.reduce((total, obj) => total + obj.diff, 0);
+         // const hours = state.items.reduce((total, obj) => total + obj.diff, 0);
+         // state.totalHours = hours
 
       }
    }

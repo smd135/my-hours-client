@@ -6,8 +6,8 @@ const DetailsCard = ({ routes }) => {
 	const difference = differenceInMinutes(new Date(routes.end_at), new Date(routes.start_at));
 	const remainder = routes.diff % 60;
 	return (
-		<Card className="detailsCard">
-			<CardBody className="">
+		<Card className="detailsCard" style={{ zIndex: '0' }}>
+			<CardBody className="" style={{ zIndex: '0' }}>
 				<div className="detailsWrapper">
 					<label htmlFor="">Номер маршрута:</label>
 					<span className="text-center">{routes.route_num}</span>

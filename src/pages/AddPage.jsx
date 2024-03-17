@@ -4,7 +4,7 @@ import { Space } from 'antd';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { useAddrouteMutation } from '../redux/features/routesApiSlice';
-// import {setRoutes} from '../redux/features/routesSlice'
+import { setUpdate } from '../redux/features/routesSlice';
 
 const AddPage = () => {
 	const dispatch = useDispatch();
@@ -29,8 +29,8 @@ const AddPage = () => {
 		e.preventDefault();
 		try {
 			routes({ route_num, start_at, end_at, engine_type, engine_num, train_num, route_etc });
-			// setRouteData({ route_num: '', start_at: '', end_at: '', engine_type: '', engine_num: '', train_num: '', route_etc: '' });
 			toast.success('Маршрут успішно додано!');
+			dispatch(setUpdate('created'));
 			navigate('/routes');
 		} catch (error) {
 			console.log(error);
@@ -42,7 +42,7 @@ const AddPage = () => {
 			<form onSubmit={submitHandler} className="addForm w-full mx-auto px-1 py-10">
 				<Space direction="vertical" className="w-full py-1.5">
 					<label className="text-sm text-white opacity-70">Номер маршрута:</label>
-					<input name="route_num" type="number" value={route_num} className="addInput w-full" size="default" placeholder="номер маршрута" onChange={onChange} />
+					<input name="route_num" type="text" value={route_num} className="addInput w-full" size="default" placeholder="номер маршрута" onChange={onChange} />
 					<label className="text-sm text-white opacity-70">Початок роботи</label>
 					<input type="datetime-local" name="start_at" className="addInput w-full" value={start_at} onChange={onChange} />
 					<label className="text-sm text-white opacity-70">Кінець роботи</label>

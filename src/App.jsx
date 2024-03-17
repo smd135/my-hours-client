@@ -7,13 +7,11 @@ import AddPage from './pages/AddPage';
 import EditRoute from './pages/EditRoute';
 import RegisterPage from './pages/RegisterPage';
 import LoginPage from './pages/LoginPage';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { useEffect } from 'react';
 import { Toaster } from 'react-hot-toast';
 function App() {
 	const { userInfo } = useSelector((state) => state.auth);
-	console.log(userInfo);
-	const dispatch = useDispatch();
 	const navigate = useNavigate();
 	useEffect(() => {
 		if (userInfo) {

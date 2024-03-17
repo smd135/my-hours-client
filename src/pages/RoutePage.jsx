@@ -7,24 +7,32 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Card, CardBody } from '@nextui-org/react';
 import { HiDotsVertical } from 'react-icons/hi';
 import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Button } from '@nextui-org/react';
-import { fetchById, deleteRoute } from '../redux/features/routesSlice';
+import { setUpdate, setRoutes } from '../redux/features/routesSlice';
 import toast from 'react-hot-toast';
+import { useGetRouteByIdQuery, useDeleteRouteMutation } from '../redux/features/routesApiSlice';
+import DotsSpinner from '../components/DotsSpinner';
 
 const RoutePage = () => {
 	const navigate = useNavigate();
 	const dispatch = useDispatch();
 	const params = useParams();
-	const { items } = useSelector((state) => state.routes);
-	const diff = items.diff;
-	const remainder = diff % 60;
+	const { data, isLoading, status, isFetching } = useGetRouteByIdQuery(params.id);
+	const { items, changed } = useSelector((state) => state.routes);
 
+	const [deleteroute] = useDeleteRouteMutation();
+
+	const diff = items ? items.diff : 0;
 	useEffect(() => {
-		dispatch(fetchById(params.id));
-	}, []);
+		if (!isFetching) {
+			dispatch(setRoutes({ ...data }));
+		}
+	}, [dispatch, isFetching, data, changed]);
+
+	const remainder = diff % 60;
 
 	const onDelete = () => {
 		if (window.confirm('Ви дійсно хочете видалити це маршрут?')) {
-			dispatch(deleteRoute(params.id));
+			deleteroute(params.id);
 			toast.success('Маршрут успішно видалено');
 			navigate('/routes');
 		}
@@ -58,42 +66,46 @@ const RoutePage = () => {
 				</div>
 			</div>
 			<div className="routeDetailsWrapper">
-				<Card className="detailsCard">
-					<CardBody className="">
-						<div className="detailsWrapper">
-							<label htmlFor="">Номер маршрута:</label>
-							<span className="text-center">{items.route_num}</span>
-						</div>
-						<div className="detailsWrapper">
-							<label htmlFor="">Початок роботи:</label>
-							<span className="text-center">{moment(items.start_at).format('DD/MM/YYYY h:mm')}</span>
-						</div>
-						<div className="detailsWrapper">
-							<label htmlFor="">Кінець роботи:</label>
-							<span className="text-center">{moment(items.end_at).format('DD/MM/YYYY h:mm')}</span>
-						</div>
-						<div className="detailsWrapper">
-							<label htmlFor="">Локомотив:</label>
-							<span className="text-center">
-								{items.engine_type} - {items.engine_num}
-							</span>
-						</div>
-						<div className="detailsWrapper">
-							<label htmlFor="">Номер поїзда:</label>
-							<span className="text-center">{items.train_num}</span>
-						</div>
-						<div className="detailsWrapper">
-							<label htmlFor="">Час роботи:</label>
-							<span className="text-center">
-								{differenceInHours(new Date(items.end_at), new Date(items.start_at))}г {remainder ? remainder : ' 0'}хв
-							</span>
-						</div>
-						<div className="detailsWrapper">
-							<label htmlFor="">Інше:</label>
-							<span className="text-center">{items.route_etc}</span>
-						</div>
-					</CardBody>
-				</Card>
+				{items !== undefined ? (
+					<Card className="detailsCard">
+						<CardBody className="">
+							<div className="detailsWrapper">
+								<label htmlFor="">Номер маршрута:</label>
+								<span className="text-center">{items.route_num}</span>
+							</div>
+							<div className="detailsWrapper">
+								<label htmlFor="">Початок роботи:</label>
+								<span className="text-center">{moment(items.start_at).format('DD/MM/YYYY h:mm')}</span>
+							</div>
+							<div className="detailsWrapper">
+								<label htmlFor="">Кінець роботи:</label>
+								<span className="text-center">{moment(items.end_at).format('DD/MM/YYYY h:mm')}</span>
+							</div>
+							<div className="detailsWrapper">
+								<label htmlFor="">Локомотив:</label>
+								<span className="text-center">
+									{items.engine_type} - {items.engine_num}
+								</span>
+							</div>
+							<div className="detailsWrapper">
+								<label htmlFor="">Номер поїзда:</label>
+								<span className="text-center">{items.train_num}</span>
+							</div>
+							<div className="detailsWrapper">
+								<label htmlFor="">Час роботи:</label>
+								<span className="text-center">
+									{differenceInHours(new Date(items.end_at), new Date(items.start_at))}г {remainder ? remainder : ' 0'}хв
+								</span>
+							</div>
+							<div className="detailsWrapper">
+								<label htmlFor="">Інше:</label>
+								<span className="text-center">{items.route_etc}</span>
+							</div>
+						</CardBody>
+					</Card>
+				) : (
+					<DotsSpinner />
+				)}
 			</div>
 		</div>
 	);

@@ -3,18 +3,18 @@ import { useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { HiOutlineHome, HiCollection, HiDocumentAdd } from 'react-icons/hi';
 import { logout } from '../redux/features/authSlice';
-import { setMonth, setYear, setTotalHours } from '../redux/features/filterSlice';
+import { setMonth, setYear, setTotalHours, setFiltered } from '../redux/features/filterSlice';
 import { useGetmeQuery } from '../redux/features/usersApiSlice';
+import { useGetRoutesQuery } from '../redux/features/routesApiSlice';
 import moment from 'moment';
 
 const NavBar = () => {
 	const dispatch = useDispatch();
 	const { userInfo } = useSelector((state) => state.auth);
-	// const data = useSelector((state) => state.auth.user);
-	const { items } = useSelector((state) => state.routes);
 	const { month, year, totalHours } = useSelector((state) => state.filter);
+	console.log(totalHours);
 
-	const { data } = useGetmeQuery();
+	const filteredItems = useSelector((state) => state.filter.items);
 
 	//***********************************************************/
 	const hours = Math.floor(totalHours / 60);
@@ -23,13 +23,9 @@ const NavBar = () => {
 	const currentDate = moment.now();
 	const currentMonth = moment(currentDate).month() + 1;
 	const savedMonth = localStorage.getItem('currentMonth');
-
 	useEffect(() => {
-		dispatch(setMonth(savedMonth));
-		// dispatch(setTotalHours());
-		localStorage.setItem('currentMonth', currentMonth);
-	}, [month, year]);
-
+		dispatch(setTotalHours());
+	}, [totalHours, dispatch]);
 	const onLogout = () => {
 		dispatch(logout());
 	};

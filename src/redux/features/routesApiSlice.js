@@ -15,8 +15,26 @@ export const routesApiSlice = apiSlice.injectEndpoints({
             url: '/routes',
             method: 'GET',
          })
+      }),
+      getRouteById: builder.query({
+         query: (id) => ({
+            url: `/routes/${id}`
+         })
+      }),
+      editRoute: builder.mutation({
+         query: (data) => ({
+            method: "PUT",
+            url: `/routes`,
+            body: data
+         })
+      }),
+      deleteRoute: builder.mutation({
+         query: (params) => ({
+            method: 'DELETE',
+            url: `/routes/${params}`,
+         })
       })
    })
 })
 
-export const { useAddrouteMutation, useGetRoutesQuery } = routesApiSlice
+export const { useAddrouteMutation, useGetRoutesQuery, useGetRouteByIdQuery, useEditRouteMutation, useDeleteRouteMutation } = routesApiSlice
